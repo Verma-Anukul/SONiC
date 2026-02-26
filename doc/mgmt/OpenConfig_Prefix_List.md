@@ -22,7 +22,7 @@
     * [3.1 Overview](#31-overview)
     * [3.2 DB Changes](#32-db-changes)
       * [3.2.1 CONFIG DB](#321-config-db)
-      * [3.2.2 APP DB](#322-app-db)
+      * [3.2.2 APPL_DB](#322-appl_db)
       * [3.2.3 STATE DB](#323-state-db)
       * [3.2.4 ASIC DB](#324-asic-db)
       * [3.2.5 COUNTER DB](#325-counter-db)
@@ -174,33 +174,12 @@ The implementation uses transformer functions in `translib/transformer/xfmr_pref
 
 The **sonic-routing-policy.yang** schema is used for prefix list configuration.
 
-**CONFIG_DB Examples:**
-
-**PREFIX_SET Table:**
-```
-PREFIX_SET|prefix-list-v4
-  "mode": "IPv4"
-  "description": "IPv4 prefix list for filtering"
-```
-
-**PREFIX Table:**
-```
-PREFIX|prefix-list-v4|10|10.0.0.0/8|8..16
-  "action": "permit"
-
-PREFIX|prefix-list-v4|20|192.168.0.0/16|exact
-  "action": "deny"
-
-PREFIX|prefix-list-v6|10|2001:db8::/32|32..48
-  "action": "permit"
-```
-
 **FRR Configuration:**
 
 Changes are made in FRR configuration to support prefix lists. The frrcfgd daemon subscribes to PREFIX_SET and PREFIX tables and configures corresponding FRR prefix-list commands.
 
-### 3.2.2 APP DB
-There are no changes to APP DB schema definition for this feature.
+### 3.2.2 APPL_DB
+There are no changes to APPL_DB schema definition for this feature.
 
 ### 3.2.3 STATE DB
 There are no changes to STATE DB schema definition for this feature.
@@ -509,7 +488,7 @@ The implementation handles various error scenarios and returns appropriate error
 
 # 5 Unit Test Cases
 
-Comprehensive test cases are available in `translib/transformer/xfmr_prefix_list_test.go`.
+Comprehensive test cases are available in the transformer test suite.
 
 ## 5.1 Functional Test Cases
 

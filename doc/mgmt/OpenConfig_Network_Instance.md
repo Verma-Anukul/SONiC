@@ -22,7 +22,7 @@
     * [3.1 Overview](#31-overview)
     * [3.2 DB Changes](#32-db-changes)
       * [3.2.1 CONFIG DB](#321-config-db)
-      * [3.2.2 APP DB](#322-app-db)
+      * [3.2.2 APPL_DB](#322-appl_db)
       * [3.2.3 STATE DB](#323-state-db)
       * [3.2.4 ASIC DB](#324-asic-db)
       * [3.2.5 COUNTER DB](#325-counter-db)
@@ -150,7 +150,7 @@ module: openconfig-network-instance
 2. Configure/Set, GET, and Delete Network Instance parameters.
 3. Support configuration of network instance type (default, L3VRF, etc.).
 4. Support configuration of anycast gateway MAC address.
-5. **Support retrieval of MAC table entries (read-only operational state from ASIC_DB).**
+5. Support retrieval of MAC table entries (read-only operational state from ASIC_DB).
 6. Support binding interfaces to network instances.
 7. Support VLAN configuration within network instances.
 8. Support protocol configuration within network instances.
@@ -195,19 +195,20 @@ The implementation uses transformer functions in `translib/transformer/xfmr_netw
 | config/name | sonic-vrf.yang | CONFIG_DB | VRF:vrf_name |
 | config/type | sonic-vrf.yang | CONFIG_DB | VRF:type |
 | **fdb** | | | |
-| config/anycast-gateway-mac | sonic-sag.yang | CONFIG_DB | SAG:gateway_mac |
+| config/anycast-gateway-mac | sonic-static-anycast-gateway.yang | CONFIG_DB | SAG\|GLOBAL:gateway_mac |
 | **fdb/mac-table/entries/entry** | | | |
-| state/mac-address | sonic-fdb.yang | ASIC_DB | ASIC_STATE:SAI_FDB_ENTRY (read-only) |
-| state/vlan | sonic-fdb.yang | ASIC_DB | ASIC_STATE:SAI_FDB_ENTRY (read-only) |
-| state/entry-type | sonic-fdb.yang | ASIC_DB | ASIC_STATE:SAI_FDB_ENTRY_ATTR_TYPE |
-| interface/interface-ref/state/interface | sonic-fdb.yang | ASIC_DB | ASIC_STATE:SAI_FDB_ENTRY (read-only) |
+| state/mac-address | N/A | ASIC_DB | ASIC_STATE:SAI_OBJECT_TYPE_FDB_ENTRY (read-only) |
+| state/vlan | N/A | ASIC_DB | ASIC_STATE:SAI_OBJECT_TYPE_FDB_ENTRY (read-only) |
+| state/entry-type | N/A | ASIC_DB | ASIC_STATE:SAI_OBJECT_TYPE_FDB_ENTRY attr SAI_FDB_ENTRY_ATTR_TYPE (read-only) |
+| interface/interface-ref/state/interface | N/A | ASIC_DB + COUNTERS_DB | ASIC_STATE:SAI_OBJECT_TYPE_FDB_ENTRY + COUNTERS:COUNTERS_PORT_NAME_MAP (read-only) |
 | **interfaces/interface** | | | |
-| config/id | sonic-vlan.yang | CONFIG_DB | VLAN_MEMBER:`<key>` |
-| config/interface | sonic-vlan.yang | CONFIG_DB | VLAN_MEMBER:`<key>` |
+| config/id | sonic-interface.yang | CONFIG_DB | INTERFACE\|VLAN_SUB_INTERFACE:interface (VRF binding via vrf_name field) |
+| config/interface | sonic-interface.yang | CONFIG_DB | INTERFACE\|VLAN_SUB_INTERFACE:interface (VRF binding via vrf_name field) |
 | **vlans/vlan** | | | |
 | config/vlan-id | sonic-vlan.yang | CONFIG_DB | VLAN:vlanid |
 | config/name | sonic-vlan.yang | CONFIG_DB | VLAN:name |
 | config/status | sonic-vlan.yang | CONFIG_DB | VLAN:admin_status |
+| config/static-anycast-gateway (ext) | sonic-vlan.yang | CONFIG_DB | VLAN_INTERFACE\|VlanX:static_anycast_gateway |
 | members/member/state/interface | sonic-vlan.yang | CONFIG_DB | VLAN_MEMBER:`<key>` |
 | **protocols/protocol** | | | |
 | config/identifier | N/A | N/A | Not stored in VRF table - protocol-specific |
@@ -216,12 +217,19 @@ The implementation uses transformer functions in `translib/transformer/xfmr_netw
 **Notes:**
 - **Bold** entries indicate major feature categories/containers
 - State nodes mirror their corresponding config nodes and are read-only
-- Key format for FDB entries: `"VlanX:mac-address"`
+- **FDB (MAC table) key formats:**
+  - CONFIG_DB FDB table: `"Vlan<id>:<mac-address>"` (for static MAC entries)
+  - ASIC_DB JSON key for OpenConfig GET: `{"bvid":"<oid>","mac":"<mac>","switch_id":"<oid>"}`
+  - ASIC_DB table: `ASIC_STATE:SAI_OBJECT_TYPE_FDB_ENTRY`
 - Key format for VLAN_MEMBER: `"VlanX|interface-name"`
+- Key format for VLAN_INTERFACE: `"VlanX"` or `"VlanX|<ip-prefix>"` (for static anycast gateway)
+- **Interface to VRF binding:** Uses `INTERFACE`, `VLAN_SUB_INTERFACE`, `PORTCHANNEL_INTERFACE`, etc. with `vrf_name` field (not VLAN_MEMBER)
 - Network instance type maps to VRF configuration in SONiC
-- Anycast gateway MAC is stored in SAG (Static Anycast Gateway) table, not VXLAN_TUNNEL
-- MAC table state data is retrieved from ASIC_DB for read-only attributes
+- Anycast gateway MAC is stored in SAG (Static Anycast Gateway) table with key `GLOBAL`
+- MAC table state data is retrieved from ASIC_DB `SAI_OBJECT_TYPE_FDB_ENTRY` for read-only attributes
+- **MAC table interface resolution:** Requires mapping from ASIC_DB bridge port OID to interface name using COUNTERS_DB `COUNTERS_PORT_NAME_MAP`
 - **MAC table entries are read-only operational state - cannot be configured via OpenConfig**
+- **VLAN static anycast gateway:** Stored in `VLAN_INTERFACE` table with key `VlanX` and field `static_anycast_gateway` (true/false)
 - Protocol configuration (BGP, static routes, etc.) is not stored in VRF table - each protocol has its own tables
 
 ## 3.2 DB Changes
@@ -230,45 +238,8 @@ The implementation uses transformer functions in `translib/transformer/xfmr_netw
 
 The implementation uses existing SONiC YANG schemas for VRF, VLAN, and FDB configuration.
 
-**CONFIG_DB Examples:**
-
-**VRF Table:**
-```
-VRF|Vrf1
-  "type": "L3VRF"
-```
-
-**SAG Table (Anycast Gateway MAC):**
-```
-SAG|gateway_mac
-  "gateway_mac": "00:11:22:33:44:55"
-```
-
-**VLAN Table:**
-```
-VLAN|Vlan100
-  "vlanid": "100"
-  "admin_status": "up"
-```
-
-**VLAN_MEMBER Table:**
-```
-VLAN_MEMBER|Vlan100|Ethernet0
-  "tagging_mode": "untagged"
-```
-
-**FDB Table (CLI/Non-OpenConfig only):**
-
-*Note: The FDB table below is shown for reference but is NOT configurable via OpenConfig. OpenConfig MAC table entries are read-only operational state retrieved from ASIC_DB.*
-
-```
-FDB|Vlan100:00:11:22:33:44:55
-  "port": "Ethernet0"
-  "type": "static"
-```
-
-### 3.2.2 APP DB
-MAC table entries are retrieved from APP_DB FDB_TABLE for learning status, but static configuration entries come from ASIC_DB for state data.
+### 3.2.2 APPL_DB
+MAC table entries are retrieved from APPL_DB FDB_TABLE for learning status, but static configuration entries come from ASIC_DB for state data.
 
 ### 3.2.3 STATE DB
 There are no changes to STATE DB schema definition for this feature. MAC table state information is retrieved from ASIC_DB.
@@ -446,7 +417,7 @@ The implementation handles various error scenarios and returns appropriate error
 
 # 5 Unit Test Cases
 
-Comprehensive test cases are available in `translib/transformer/xfmr_network_instance_test.go`.
+Comprehensive test cases are available in the transformer test suite.
 
 ## 5.1 Functional Test Cases
 

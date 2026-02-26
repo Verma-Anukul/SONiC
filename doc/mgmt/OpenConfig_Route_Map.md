@@ -22,7 +22,7 @@
     * [3.1 Overview](#31-overview)
     * [3.2 DB Changes](#32-db-changes)
       * [3.2.1 CONFIG DB](#321-config-db)
-      * [3.2.2 APP DB](#322-app-db)
+      * [3.2.2 APPL_DB](#322-appl_db)
       * [3.2.3 STATE DB](#323-state-db)
       * [3.2.4 ASIC DB](#324-asic-db)
       * [3.2.5 COUNTER DB](#325-counter-db)
@@ -239,7 +239,7 @@ The implementation uses transformer functions in `translib/transformer/xfmr_rout
 | config/on-match-next | sonic-route-map.yang | CONFIG_DB | ROUTE_MAP:on_match_next |
 | config/on-match-goto-statement | sonic-route-map.yang | CONFIG_DB | ROUTE_MAP:on_match_goto_statement |
 | **actions/bgp-actions** | | | |
-| config/set-next-hop | sonic-route-map.yang | CONFIG_DB | ROUTE_MAP_SET:set_ipv4_nexthop |
+| config/set-next-hop | sonic-route-map.yang | CONFIG_DB | ROUTE_MAP:set_next_hop (IPv4) / ROUTE_MAP:set_ipv6_next_hop_global (IPv6) |
 | config/set-source-address | sonic-route-map.yang | CONFIG_DB | ROUTE_MAP_SET:set_src |
 | **actions/bgp-actions/set-as-path-prepend** | | | |
 | config/repeat-n | sonic-route-map.yang | CONFIG_DB | ROUTE_MAP_SET:set_repeat_asn |
@@ -256,7 +256,8 @@ The implementation uses transformer functions in `translib/transformer/xfmr_rout
 - State nodes mirror their corresponding config nodes and are read-only
 - Key format for ROUTE_MAP entries: `"<policy-name>|<statement-name>"`
 - Statement names represent sequence numbers in SONiC
-- ROUTE_MAP_SET table is used for BGP-specific set actions (next-hop, community, AS path, etc.)
+- **Set next-hop:** Stored in ROUTE_MAP table (fields `set_next_hop` for IPv4, `set_ipv6_next_hop_global` for IPv6), not ROUTE_MAP_SET
+- ROUTE_MAP_SET table is used for other BGP-specific set actions (set-source-address, community, AS path, etc.)
 - match-tag-set/match-set-options: Only ANY/ALL supported, INVERT not supported
 - ext-community-count: Limited support in current implementation
 
@@ -266,39 +267,10 @@ The implementation uses transformer functions in `translib/transformer/xfmr_rout
 
 The implementation uses existing SONiC YANG schemas for Route Map configuration.
 
-**CONFIG_DB Examples:**
+**Note:** Most BGP set actions (set-source-address, set-community, AS path prepend, etc.) are stored in the ROUTE_MAP_SET table, while match conditions, basic actions, and set-next-hop are in the ROUTE_MAP table. The set-next-hop fields are `set_next_hop` (IPv4) and `set_ipv6_next_hop_global` (IPv6) in ROUTE_MAP.
 
-**ROUTE_MAP Table:**
-```
-ROUTE_MAP|RM1|10
-  "route_operation": "permit"
-  "match_prefix_set": "PREFIX1"
-  "description": "First statement"
-```
-
-**ROUTE_MAP_SET Table:**
-```
-ROUTE_MAP_SET|RM1|10
-  "set_ipv4_nexthop": "10.0.0.1"
-  "community": "100:200,100:300"
-```
-
-```
-ROUTE_MAP|RM1|20
-  "route_operation": "deny"
-  "match_community": "COMM1"
-```
-
-```
-ROUTE_MAP_SET|RM1|20
-  "as_path_prepend_asn": "65100"
-  "as_path_prepend_repeat": "3"
-```
-
-**Note:** BGP set actions (set-next-hop, set-community, AS path prepend, etc.) are stored in the ROUTE_MAP_SET table, while match conditions and basic actions are in ROUTE_MAP table.
-
-### 3.2.2 APP DB
-There are no changes to APP DB schema definition for this feature.
+### 3.2.2 APPL_DB
+There are no changes to APPL_DB schema definition for this feature.
 
 ### 3.2.3 STATE DB
 There are no changes to STATE DB schema definition for this feature.
@@ -629,7 +601,7 @@ The implementation handles various error scenarios and returns appropriate error
 
 # 5 Unit Test Cases
 
-Comprehensive test cases are available in `translib/transformer/xfmr_route_map_test.go`.
+Comprehensive test cases are available in the transformer test suite.
 
 ## 5.1 Functional Test Cases
 

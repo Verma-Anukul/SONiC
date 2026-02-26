@@ -136,92 +136,104 @@ Due to the extensive nature of BGP configuration, the mapping table is organized
 | OpenConfig YANG Node | SONiC YANG File | DB Name | Table:Field |
 |---------------------|-----------------|---------|-------------|
 | **bgp/global** | | | |
-| config/as | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:local_asn |
-| config/router-id | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:router_id |
+| config/as | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:local_asn |
+| config/router-id | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:router_id |
 | **bgp/global/graceful-restart** | | | |
-| config/enabled | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:graceful_restart_enable |
-| config/restart-time | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:gr_restart_time |
-| config/stale-routes-time | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:gr_stale_routes_time |
+| config/enabled | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:graceful_restart_enable |
+| config/restart-time | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:gr_restart_time |
+| config/stale-routes-time | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:gr_stale_routes_time |
+| config/max-dynamic-neighbor-prefixes (ext) | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:max_dynamic_neighbors |
 | **bgp/global/use-multiple-paths/ebgp** | | | |
-| config/allow-multiple-as | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:load_balance_mp_relax |
+| config/allow-multiple-as | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:load_balance_mp_relax |
 | **bgp/global/route-selection-options** | | | |
-| config/external-compare-router-id | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf\|default:external_compare_router_id |
+| config/external-compare-router-id | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS\|vrf_name:external_compare_router_id |
 | **bgp/global/afi-safis/afi-safi** | | | |
-| config/afi-safi-name | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf\|default\|afi-safi:afi_safi_name |
-| config/enabled | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf\|default\|afi-safi:admin_status |
+| config/afi-safi-name | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf_name\|afi_safi:afi_safi_name |
+| config/enabled | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf_name\|afi_safi:admin_status |
 | state/total-paths | N/A | APPL_DB | BGP_GLOBALS_AF_TABLE:total_paths |
 | state/total-prefixes | N/A | APPL_DB | BGP_GLOBALS_AF_TABLE:total_prefixes |
 | **bgp/global/afi-safis/afi-safi/graceful-restart** | | | |
-| config/enabled | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf\|default\|afi-safi:graceful_restart_enable |
+| config/enabled | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf_name\|afi_safi:graceful_restart_enable |
 | **bgp/global/afi-safis/afi-safi/use-multiple-paths/ebgp** | | | |
-| config/maximum-paths | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf\|default\|afi-safi:max_ebgp_paths |
+| config/maximum-paths | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf_name\|afi_safi:max_ebgp_paths |
 | **bgp/global/afi-safis/afi-safi/use-multiple-paths/ibgp** | | | |
-| config/maximum-paths | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf\|default\|afi-safi:max_ibgp_paths |
+| config/maximum-paths | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF\|vrf_name\|afi_safi:max_ibgp_paths |
+| **bgp/global/afi-safis/afi-safi/network (ext)** | | | |
+| config/prefix | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF_NETWORK\|vrf_name\|afi_safi\|prefix:NULL |
 | **bgp/global/dynamic-neighbor-prefixes/dynamic-neighbor-prefix** | | | |
-| config/prefix | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_LISTEN_PREFIX\|vrf\|default\|ip-prefix:NULL |
-| config/peer-group | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_LISTEN_PREFIX\|vrf\|default\|ip-prefix:peer_group_name |
+| config/prefix | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_LISTEN_PREFIX\|vrf_name\|ip_prefix:NULL |
+| config/peer-group | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_LISTEN_PREFIX\|vrf_name\|ip_prefix:peer_group_name |
 | **bgp/neighbors/neighbor** | | | |
-| config/neighbor-address | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:NULL |
-| config/peer-as | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:asn |
-| config/peer-group | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:peer_group_name |
-| config/description | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:name |
-| config/enabled | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:admin_status |
-| state/session-state | N/A | APPL_DB | BGP_NEIGHBOR_TABLE:session_state |
-| state/last-established | N/A | APPL_DB | BGP_NEIGHBOR_TABLE:last_established |
+| config/neighbor-address | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:NULL |
+| config/peer-as | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:asn |
+| config/peer-group | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:peer_group_name |
+| config/description | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:name |
+| config/enabled | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:admin_status |
+| state/session-state | N/A | STATE_DB | NEIGH_STATE_TABLE\|vrf_name\|neighbor_addr:state (read-only) |
+| state/last-established | N/A | STATE_DB | NEIGH_STATE_TABLE\|vrf_name\|neighbor_addr:uptime (read-only) |
+| state/received-prefixes-count (ext) | N/A | STATE_DB | NEIGH_STATE_TABLE\|vrf_name\|neighbor_addr:rcvdPfx (read-only) |
 | **bgp/neighbors/neighbor/timers** | | | |
-| config/hold-time | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:holdtime |
-| config/keepalive-interval | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:keepalive |
+| config/hold-time | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:holdtime |
+| config/keepalive-interval | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:keepalive |
 | **bgp/neighbors/neighbor/afi-safis/afi-safi** | | | |
-| config/afi-safi-name | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf\|default\|neighbor\|afi-safi:afi_safi_name |
-| config/enabled | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf\|default\|neighbor\|afi-safi:admin_status |
+| config/afi-safi-name | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf_name\|neighbor_addr\|afi_safi:afi_safi_name |
+| config/enabled | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf_name\|neighbor_addr\|afi_safi:admin_status |
 | **bgp/neighbors/neighbor/afi-safis/afi-safi/apply-policy** | | | |
-| config/import-policy | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf\|default\|neighbor\|afi-safi:route_map_in (array) |
-| config/export-policy | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf\|default\|neighbor\|afi-safi:route_map_out (array) |
+| config/import-policy | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf_name\|neighbor_addr\|afi_safi:route_map_in (array) |
+| config/export-policy | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR_AF\|vrf_name\|neighbor_addr\|afi_safi:route_map_out (array) |
 | **bgp/neighbors/neighbor/enable-bfd** | | | |
-| config/enabled | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:bfd |
-| config/desired-minimum-tx-interval | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:desired_minimum_tx_interval |
-| config/required-minimum-receive | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:required_minimum_receive |
-| config/detection-multiplier | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf\|default\|neighbor:detection_multiplier |
+| config/enabled | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:bfd |
+| config/desired-minimum-tx-interval | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:desired_minimum_tx_interval |
+| config/required-minimum-receive | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:required_minimum_receive |
+| config/detection-multiplier | sonic-bgp-neighbor.yang | CONFIG_DB | BGP_NEIGHBOR\|vrf_name\|neighbor_addr:detection_multiplier |
 | **bgp/peer-groups/peer-group** | | | |
-| config/peer-group-name | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:NULL |
-| config/peer-as | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:asn |
-| config/description | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:name |
+| config/peer-group-name | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:NULL |
+| config/peer-as | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:asn |
+| config/description | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:name |
 | **bgp/peer-groups/peer-group/timers** | | | |
-| config/hold-time | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:holdtime |
-| config/keepalive-interval | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:keepalive |
+| config/hold-time | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:holdtime |
+| config/keepalive-interval | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:keepalive |
 | **bgp/peer-groups/peer-group/transport** | | | |
-| config/local-address | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:local_addr |
+| config/local-address | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:local_addr |
 | **bgp/peer-groups/peer-group/ebgp-multihop** | | | |
-| config/enabled | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:ebgp_multihop |
-| config/multihop-ttl | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:ebgp_multihop_ttl |
+| config/enabled | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:ebgp_multihop |
+| config/multihop-ttl | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:ebgp_multihop_ttl |
 | **bgp/peer-groups/peer-group/afi-safis/afi-safi** | | | |
-| config/afi-safi-name | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf\|default\|peer-group\|afi-safi:afi_safi_name |
-| config/enabled | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf\|default\|peer-group\|afi-safi:admin_status |
+| config/afi-safi-name | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf_name\|peer_group\|afi_safi:afi_safi_name |
+| config/enabled | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf_name\|peer_group\|afi_safi:admin_status |
 | **bgp/peer-groups/peer-group/afi-safis/afi-safi/apply-policy** | | | |
-| config/import-policy | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf\|default\|peer-group\|afi-safi:route_map_in (array) |
-| config/export-policy | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf\|default\|peer-group\|afi-safi:route_map_out (array) |
+| config/import-policy | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf_name\|peer_group\|afi_safi:route_map_in (array) |
+| config/export-policy | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP_AF\|vrf_name\|peer_group\|afi_safi:route_map_out (array) |
 | **bgp/peer-groups/peer-group/enable-bfd** | | | |
-| config/enabled | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:bfd |
-| config/desired-minimum-tx-interval | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:desired_minimum_tx_interval |
-| config/required-minimum-receive | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:required_minimum_receive |
-| config/detection-multiplier | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf\|default\|peer-group:detection_multiplier |
+| config/enabled | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:bfd |
+| config/desired-minimum-tx-interval | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:desired_minimum_tx_interval |
+| config/required-minimum-receive | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:required_minimum_receive |
+| config/detection-multiplier | sonic-bgp-peergroup.yang | CONFIG_DB | BGP_PEER_GROUP\|vrf_name\|peer_group:detection_multiplier |
 | **protocols/protocol/local-aggregates/aggregate** | | | |
-| config/prefix | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF_AGGREGATE_ADDR\|vrf\|afi-safi\|prefix:NULL |
-| config/summary-only | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF_AGGREGATE_ADDR\|vrf\|afi-safi\|prefix:summary_only |
+| config/prefix | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF_AGGREGATE_ADDR\|vrf_name\|afi_safi\|prefix:NULL |
+| config/summary-only | sonic-bgp-global.yang | CONFIG_DB | BGP_GLOBALS_AF_AGGREGATE_ADDR\|vrf_name\|afi_safi\|prefix:summary_only |
 | **table-connections/table-connection** | | | |
-| config/import-policy | sonic-protocol.yang | CONFIG_DB | PROTOCOL_ROUTE_MAP\|src-protocol\|dst-protocol\|vrf\|address-family:route_map |
+| config/import-policy | sonic-protocol.yang | CONFIG_DB | ROUTE_REDISTRIBUTE\|vrf_name\|src_protocol\|dst_protocol\|addr_family:route_map |
 
 **Notes:**
 - **Bold** entries indicate major feature categories/containers
 - State nodes mirror their corresponding config nodes and are read-only
-- BGP configuration is VRF-aware; all tables have VRF as part of the key
-- AFI/SAFI identifiers: IPV4_UNICAST, IPV6_UNICAST, L2VPN_EVPN
+- BGP configuration is VRF-aware; all tables use `vrf_name` as part of the key
+- **Key format examples:**
+  - BGP_GLOBALS: `"default"` or `"Vrf1"`
+  - BGP_NEIGHBOR: `"default|192.0.10.1"` or `"Vrf1|192.0.10.1"`
+  - BGP_GLOBALS_AF: `"default|ipv4_unicast"` or `"Vrf1|ipv6_unicast"`
+  - BGP_GLOBALS_AF_NETWORK: `"default|ipv4_unicast|10.1.1.0/24"`
+  - ROUTE_REDISTRIBUTE: `"default|connected|bgp|ipv4"` (lowercase protocol and addr_family)
+- AFI/SAFI identifiers: `ipv4_unicast`, `ipv6_unicast`, `l2vpn_evpn` (lowercase with underscores)
+- Protocol identifiers for table-connections: `connected`, `static`, `bgp`, `ospf` (lowercase)
 - Peer-group configuration serves as a template for neighbors
-- BFD configuration fields (bfd, desired_minimum_tx_interval, required_minimum_receive, detection_multiplier) are on BGP_NEIGHBOR and BGP_PEER_GROUP tables
+- BFD configuration fields are on BGP_NEIGHBOR and BGP_PEER_GROUP tables
 - Policy fields (route_map_in/route_map_out) are arrays supporting multiple policies
-- BGP_REDISTRIBUTE table is not supported; use PROTOCOL_ROUTE_MAP for table-connections
-- Dynamic neighbor prefixes use BGP_GLOBALS_LISTEN_PREFIX table with ip_prefix field
-- Local aggregates use BGP_GLOBALS_AF_AGGREGATE_ADDR table with key format: vrf_name|afi_safi|ip_prefix
+- **Table-connections (route redistribution):** Uses ROUTE_REDISTRIBUTE table (not PROTOCOL_ROUTE_MAP)
+- Dynamic neighbor prefixes use BGP_GLOBALS_LISTEN_PREFIX table
+- Local aggregates use BGP_GLOBALS_AF_AGGREGATE_ADDR table
+- **BGP network prefixes (extension):** Use BGP_GLOBALS_AF_NETWORK table for advertised networks
 
 ## 3.2 DB Changes
 
@@ -229,126 +241,8 @@ Due to the extensive nature of BGP configuration, the mapping table is organized
 
 The **sonic-bgp-global.yang**, **sonic-bgp-neighbor.yang**, **sonic-bgp-peergroup.yang**, and **sonic-bgp-peerrange.yang** schemas are used for BGP configuration.
 
-**CONFIG_DB Examples:**
-
-**BGP Global Configuration:**
-```json
-{
-  "BGP_GLOBALS|vrf|default": {
-    "local_asn": "65001",
-    "router_id": "1.1.1.1",
-    "graceful_restart_enable": "true",
-    "gr_restart_time": "120",
-    "gr_stale_routes_time": "360",
-    "load_balance_mp_relax": "false",
-    "external_compare_router_id": "true"
-  }
-}
-```
-
-**BGP Address Family Configuration:**
-```json
-{
-  "BGP_GLOBALS_AF|vrf|default|ipv4_unicast": {
-    "afi_safi_name": "IPV4_UNICAST",
-    "admin_status": "true",
-    "graceful_restart_enable": "true",
-    "max_ebgp_paths": "32",
-    "max_ibgp_paths": "32"
-  }
-}
-```
-
-**BGP Neighbor:**
-```json
-{
-  "BGP_NEIGHBOR|vrf|default|10.0.0.1": {
-    "asn": "65002",
-    "name": "Peer Router",
-    "holdtime": "180",
-    "keepalive": "60",
-    "admin_status": "true",
-    "peer_group_name": "spine",
-    "bfd": "true",
-    "desired_minimum_tx_interval": "300",
-    "required_minimum_receive": "300",
-    "detection_multiplier": "3"
-  }
-}
-```
-
-**BGP Neighbor Address Family:**
-```json
-{
-  "BGP_NEIGHBOR_AF|vrf|default|10.0.0.1|ipv4_unicast": {
-    "afi_safi_name": "IPV4_UNICAST",
-    "admin_status": "true",
-    "route_map_in": ["POLICY1", "POLICY2"],
-    "route_map_out": ["POLICY3"]
-  }
-}
-```
-
-**BGP Peer Group:**
-```json
-{
-  "BGP_PEER_GROUP|vrf|default|spine": {
-    "asn": "65000",
-    "name": "Spine Routers",
-    "ebgp_multihop": "true",
-    "ebgp_multihop_ttl": "5",
-    "holdtime": "180",
-    "keepalive": "60",
-    "local_addr": "10.0.0.1",
-    "bfd": "true",
-    "desired_minimum_tx_interval": "300",
-    "required_minimum_receive": "300",
-    "detection_multiplier": "3"
-  }
-}
-```
-
-**BGP Peer Group Address Family:**
-```json
-{
-  "BGP_PEER_GROUP_AF|vrf|default|spine|ipv4_unicast": {
-    "afi_safi_name": "IPV4_UNICAST",
-    "admin_status": "true",
-    "route_map_in": ["POLICY_IN"],
-    "route_map_out": ["POLICY_OUT"]
-  }
-}
-```
-
-**BGP Dynamic Neighbors (Listen Prefix):**
-```json
-{
-  "BGP_GLOBALS_LISTEN_PREFIX|vrf|default|10.0.0.0/24": {
-    "peer_group_name": "spine"
-  }
-}
-```
-
-**BGP Aggregate Address:**
-```json
-{
-  "BGP_GLOBALS_AF_AGGREGATE_ADDR|vrf|default|ipv4_unicast|10.0.0.0/8": {
-    "summary_only": "true"
-  }
-}
-```
-
-**Protocol Route Map (Table Connections):**
-```json
-{
-  "PROTOCOL_ROUTE_MAP|static|bgp|default|ipv4_unicast": {
-    "route_map": "STATIC_TO_BGP"
-  }
-}
-```
-
 ### 3.2.2 APPL_DB
-BGP operational state is available in APPL_DB:
+BGP operational state for global AFI-SAFI statistics is available in APPL_DB:
 
 **BGP_GLOBALS_AF_TABLE:**
 ```json
@@ -360,20 +254,32 @@ BGP operational state is available in APPL_DB:
 }
 ```
 
-**BGP_NEIGHBOR_TABLE:**
+**Note:** BGP neighbor state information (session-state, last-established, received-prefixes-count) is stored in STATE_DB NEIGH_STATE_TABLE, not APPL_DB.
+
+### 3.2.3 STATE DB
+BGP neighbor operational state is available in STATE_DB:
+
+**NEIGH_STATE_TABLE:**
 ```json
 {
-  "BGP_NEIGHBOR_TABLE:default:10.0.0.1": {
-    "session_state": "Established",
-    "last_established": "1234567890",
-    "received_prefixes": "100",
-    "sent_prefixes": "50"
+  "NEIGH_STATE_TABLE:default|10.1.0.2": {
+    "state": "Established",
+    "peerType": "e-BGP",
+    "vrf": "default",
+    "rcvdPfx": "150",
+    "uptime": "360000"
   }
 }
 ```
 
-### 3.2.3 STATE DB
-There are no BGP-specific changes to STATE DB schema for this feature. State information is primarily in APPL_DB.
+**Key Format:** `vrf_name|neighbor_ip`
+
+**Fields:**
+- `state`: BGP session state (Idle, Connect, Active, OpenSent, OpenConfirm, Established)
+- `peerType`: Peer type (e-BGP, i-BGP)
+- `vrf`: VRF name
+- `rcvdPfx`: Total number of prefixes received from neighbor (aggregate across all AFI-SAFIs)
+- `uptime`: Time since session was established (in centiseconds, timeticks64 format)
 
 ### 3.2.4 ASIC DB
 There are no changes to ASIC DB schema definition.
@@ -809,7 +715,7 @@ The implementation handles various error scenarios and returns appropriate error
 
 The following OpenConfig BGP features are not currently supported in SONiC:
 
-- **Table Connections (Route Redistribution)**: Limited support via PROTOCOL_ROUTE_MAP table for import-policy configuration. Full BGP_REDISTRIBUTE table functionality is not available.
+- **Table Connections (Route Redistribution)**: Supported via ROUTE_REDISTRIBUTE table for import-policy configuration.
 - **Send-Community Configuration**: The `send-community-type` field in neighbor AFI/SAFI configuration is not supported.
 - **Add-Paths Configuration**: The `add-paths` container under peer-group AFI/SAFI is not fully supported.
 - **Peer-group Peer-Type**: The `peer-type` field in peer-group configuration is not supported.
@@ -820,7 +726,7 @@ Attempts to configure these unsupported features will return appropriate error m
 
 # 5 Unit Test Cases
 
-Comprehensive test cases are available in `translib/transformer/xfmr_bgp_test.go`.
+Comprehensive test cases are available in the transformer test suite.
 
 ## 5.1 Functional Test Cases
 

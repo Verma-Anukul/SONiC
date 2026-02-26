@@ -22,7 +22,7 @@
     * [3.1 Overview](#31-overview)
     * [3.2 DB Changes](#32-db-changes)
       * [3.2.1 CONFIG DB](#321-config-db)
-      * [3.2.2 APP DB](#322-app-db)
+      * [3.2.2 APPL_DB](#322-appl_db)
       * [3.2.3 STATE DB](#323-state-db)
       * [3.2.4 ASIC DB](#324-asic-db)
       * [3.2.5 COUNTER DB](#325-counter-db)
@@ -178,45 +178,18 @@ The implementation uses transformer functions in `translib/transformer/xfmr_comm
 
 The **sonic-routing-policy.yang** schema is used for community list configuration.
 
-**CONFIG_DB Examples:**
-
-**COMMUNITY_SET Table (Standard):**
-```
-COMMUNITY_SET|standard-comm-list
-  "set_type": "STANDARD"
-  "action": "permit"
-  "match_action": "ANY"
-  "community_member@": "65000:100,65000:200,NO_EXPORT"
-```
-
-**COMMUNITY_SET Table (Expanded - Regex):**
-```
-COMMUNITY_SET|expanded-comm-list
-  "set_type": "EXPANDED"
-  "action": "permit"
-  "match_action": "ANY"
-  "community_member@": "^65[0-9]+:.*"
-```
-
-**EXTENDED_COMMUNITY_SET Table:**
-```
-EXTENDED_COMMUNITY_SET|ext-comm-list
-  "action": "permit"
-  "match_action": "ANY"
-  "ext_community_member@": "rt:65000:100,soo:65000:200"
-```
-
 **Note:** 
 - Standard and expanded community sets are stored in COMMUNITY_SET table with `set_type` field distinguishing them
 - Extended community sets are stored in separate EXTENDED_COMMUNITY_SET table
 - The `action` field specifies permit/deny behavior
+- Both tables use `community_member@` field to store community members (@ indicates array/list type in Redis)
 
 **FRR Configuration:**
 
 Changes are made in FRR configuration to support community lists. The frrcfgd daemon subscribes to COMMUNITY_SET and EXTENDED_COMMUNITY_SET tables and configures corresponding FRR bgp community-list and bgp extcommunity-list commands.
 
-### 3.2.2 APP DB
-There are no changes to APP DB schema definition for this feature.
+### 3.2.2 APPL_DB
+There are no changes to APPL_DB schema definition for this feature.
 
 ### 3.2.3 STATE DB
 There are no changes to STATE DB schema definition for this feature.
@@ -498,7 +471,7 @@ The implementation handles various error scenarios and returns appropriate error
 
 # 5 Unit Test Cases
 
-Comprehensive test cases are available in `translib/transformer/xfmr_community_list_test.go`.
+Comprehensive test cases are available in the transformer test suite.
 
 ## 5.1 Functional Test Cases
 

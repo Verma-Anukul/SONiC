@@ -22,7 +22,7 @@
     * [3.1 Overview](#31-overview)
     * [3.2 DB Changes](#32-db-changes)
       * [3.2.1 CONFIG DB](#321-config-db)
-      * [3.2.2 APP DB](#322-app-db)
+      * [3.2.2 APPL_DB](#322-appl_db)
       * [3.2.3 STATE DB](#323-state-db)
       * [3.2.4 ASIC DB](#324-asic-db)
       * [3.2.5 COUNTER DB](#325-counter-db)
@@ -173,25 +173,27 @@ The implementation uses transformer functions in `translib/transformer/xfmr_stat
 | config/identifier | N/A | N/A | Not stored - must be STATIC for static routes |
 | config/name | N/A | N/A | Not stored - must be "static" |
 | **static-routes/static** | | | |
-| config/prefix | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:`<key>` |
+| config/prefix | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:vrf_name\|prefix (key) |
 | **next-hops/next-hop** | | | |
-| config/index | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:`<key>` |
-| config/next-hop | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:nexthop |
-| config/nh-network-instance | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:nexthop_vrf |
+| config/index | N/A | N/A | Not stored - index maps to nexthop array position |
+| config/next-hop | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:nexthop (comma-separated for multiple) |
+| config/nh-network-instance | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:nexthop-vrf (comma-separated for multiple) |
 | **enable-bfd** | | | |
-| config/enabled | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:bfd_enable |
+| config/enabled | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:bfd (comma-separated for multiple) |
 | **interface-ref** | | | |
-| config/interface | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:ifname |
+| config/interface | sonic-static-route.yang | CONFIG_DB | STATIC_ROUTE:ifname (comma-separated for multiple) |
 
 **Notes:**
 - **Bold** entries indicate major feature categories/containers
 - State nodes mirror their corresponding config nodes and are read-only
-- Key format for STATIC_ROUTE: `"vrf|prefix|nexthop|ifname"` (e.g., "default|10.0.0.0/8|10.0.0.1|", "default|2001:db8::/32|2001:db8::1|eth0")
+- **Key format for STATIC_ROUTE:** `"vrf_name|prefix"` (e.g., "default|172.16.0.0/24", "Vrf1|2001:db8::/32")
 - Protocol identifier must be "STATIC" and name "static" - these are not stored in CONFIG_DB
-- Multiple next-hops create separate STATIC_ROUTE entries with same prefix
-- Next-hop VRF (nexthop_vrf) enables VRF route leaking via the SONiC extension `nh-network-instance`
+- **Multiple next-hops:** Single STATIC_ROUTE entry per prefix with comma-separated values in nexthop, ifname, nexthop-vrf, and bfd fields
+- Next-hop VRF field name is `nexthop-vrf` (hyphenated, not underscore)
+- BFD field name is `bfd` (not `bfd_enable`)
+- The index field is not stored - it represents the position in the nexthop array
 - **Standard OpenConfig next-hop/config/network-instance is not supported** (deviated as not-supported in openconfig-network-instance-deviation.yang)
-- The `nh-network-instance` extension field maps to STATIC_ROUTE:nexthop_vrf for VRF route leaking
+- The `nh-network-instance` extension field maps to STATIC_ROUTE:nexthop-vrf for VRF route leaking
 
 ## 3.2 DB Changes
 
@@ -199,38 +201,14 @@ The implementation uses transformer functions in `translib/transformer/xfmr_stat
 
 The **sonic-static-route.yang** schema is used for static route configuration.
 
-**CONFIG_DB Examples:**
-
-**Static Route with IP Next-hop:**
-```
-STATIC_ROUTE|default|10.1.1.0/24|10.0.0.1|
-  "nexthop": "10.0.0.1"
-  "bfd_enable": "false"
-```
-
-**Static Route with Interface Next-hop:**
-```
-STATIC_ROUTE|default|192.168.1.0/24||Ethernet0
-  "ifname": "Ethernet0"
-  "bfd_enable": "true"
-```
-
-**Static Route with VRF Next-hop (VRF leak):**
-```
-STATIC_ROUTE|Vrf1|10.2.0.0/16|10.0.0.1|
-  "nexthop": "10.0.0.1"
-  "nexthop_vrf": "Vrf2"
-  "bfd_enable": "false"
-```
-
 **Note:** The STATIC_ROUTE table does not store protocol identifier or name fields - these are implied by the table itself and must be "STATIC" and "static" respectively in OpenConfig paths.
 
 **FRR Configuration:**
 
 Changes are made in FRR configuration to support static routes with BFD. The frrcfgd daemon subscribes to STATIC_ROUTE table and configures corresponding FRR static route commands.
 
-### 3.2.2 APP DB
-Static route information is pushed to APP_DB ROUTE_TABLE by the routing protocol daemon.
+### 3.2.2 APPL_DB
+Static route information is pushed to APPL_DB ROUTE_TABLE by the routing protocol daemon.
 
 ### 3.2.3 STATE DB
 There are no changes to STATE DB schema definition for this feature.
@@ -532,7 +510,7 @@ The implementation handles various error scenarios and returns appropriate error
 
 # 5 Unit Test Cases
 
-Comprehensive test cases are available in `translib/transformer/xfmr_static_route_test.go`.
+Comprehensive test cases are available in the transformer test suite.
 
 ## 5.1 Functional Test Cases
 
